@@ -73,6 +73,19 @@ Business Users:
 
 Directions API URLs are restricted to approximately 2000 characters, after URL Encoding. As some Directions API URLs may involve many locations along a path, be aware of this limit when constructing your URLs.
 
+### Travel Modes
+
+When you calculate directions, you may specify which transportation `mode` to use. By default, directions are calculated as `car` directions. The following travel modes are currently supported:
+
+* `car` (default) indicates standard driving directions using the road network.
+
+* `foot` requests walking directions via pedestrian paths & sidewalks (where available).
+
+* `bicycle` requests bicycling directions via bicycle paths & preferred streets (where available).
+
+* `public_transport` requests directions via public transport (where available).
+
+
 ### Using Waypoints
 
 When calculating routes using the Directions endpoint, you may also specify waypoints for driving, walking or bicycling directions. Waypoints allow you to calculate routes through additional locations, in which case the returned route passes through the given waypoints.
@@ -83,11 +96,24 @@ By default, the Directions service calculates a route through the provided waypo
 
 If you instruct the Directions service to optimize the order of its waypoints, their order will be returned in the `waypoint_order` field within the routes object. The `waypoint_order` field returns values which are zero-based.
 
+### Avoiding
+
+Directions may be calculated that adhere to certain restrictions. Restrictions are indicated by use of the `avoid` parameter, and an argument to that parameter indicating the restriction to avoid. The following restrictions are supported:
+
+* `tolls`
+
+* `highways`
+
+* `ferries`
+
+
+It's possible to request a route that avoids any combination of tolls, highways and ferries by passing both restrictions to the avoid parameter. For example: `avoid=tolls|highways|ferries`.
+
 ### Region Biasing
 
 You can also set the Directions service to return results biased to a particular region by use of the `region` parameter. This parameter takes a ccTLD (country code top-level domain) argument specifying the region bias. Most ccTLD codes are identical to ISO 3166-1 codes, with some notable exceptions. For example, the United Kingdom's ccTLD is "uk" (.co.uk) while its ISO 3166-1 code is "gb" (technically for the entity of "The United Kingdom of Great Britain and Northern Ireland").
 
-## Directions [/directions/{format}{?origin,destination,mode,waypoints,alternatives,avoid,units,region,departure_time,arrival_time,routing_cost,effective_cost,key}]
+## Directions [/directions/{format}{?origin,destination,mode,waypoints,alternatives,avoid,region,departure_time,arrival_time,routing_cost,effective_cost,key}]
 ### Get directions [GET]
 + Parameters
     + format (required, string, `json`) ... `format` may be either of the following values:    
@@ -121,8 +147,6 @@ You can also set the Directions service to return results biased to a particular
         * `highways` indicates that the calculated route should avoid highways. 
         
         * `ferries` indicates that the calculated route should avoid ferries.
-    
-    + units (optional, string, `metric`) ... Specifies the unit system to use when displaying results. Options are `metric` or `imperial`. Default is `metric`
     
     + region (optional, string, `be`) ... The region code, specified as a ccTLD ("top-level domain") two-character value. (For more information see Region Biasing)
     
