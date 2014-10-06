@@ -4,17 +4,6 @@ HOST: http://api.be-mobile.be/v1
 # Be-Mobile
 Move smarter together with the Be-Mobile API.
 
-# Group Directions
-### Introduction
-      
-The `directions` endpoint is a service that calculates directions between locations using an HTTP request. You can search for directions for several modes of transportation, include public transport, driving, walking or cycling. 
-      
-Directions may specify origins, destinations and waypoints either as text strings or as latitude/longitude coordinates. The Directions API can return multi-part directions using a series of waypoints.
-      
-This service is generally designed for calculating directions for static (known in advance) addresses for placement of application content on a map; this service is **not** designed to respond in real time to user input, for example.
-      
-Calculating directions is a time and resource intensive task. Whenever possible, calculate known addresses ahead of time (using the service described here) and store your results in a temporary cache of your own design.
-      
 ### Audience
       
 This document is intended for website and mobile developers who want to compute direction data within maps provided by the Be-Mobile API. It provides an introduction to using the API and reference material on the available parameters.
@@ -47,6 +36,18 @@ To specify a key in your request, include it as the value of a key parameter.
 
 > **Note**: HTTPS is enforced for requests that include an API key.
 
+
+# Group Directions
+### Introduction
+      
+The `directions` endpoint is a service that calculates directions between locations using an HTTP request. You can search for directions for several modes of transportation, include public transport, driving, walking or cycling. 
+      
+Directions may specify origins, destinations and waypoints either as text strings or as latitude/longitude coordinates. The Directions API can return multi-part directions using a series of waypoints.
+      
+This service is generally designed for calculating directions for static (known in advance) addresses for placement of application content on a map; this service is **not** designed to respond in real time to user input, for example.
+      
+Calculating directions is a time and resource intensive task. Whenever possible, calculate known addresses ahead of time (using the service described here) and store your results in a temporary cache of your own design.
+      
 
 ### Usage Limits
 
