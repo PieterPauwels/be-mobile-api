@@ -15,27 +15,22 @@ This document is intended for website and mobile developers who want to compute 
 All Directions API applications should use an API key. Including a key in your request:
 
 * Allows you to monitor your application's API usage in the APIs Console.
- 
 * Enables per-key instead of per-IP-address quota limits.
- 
 * Ensures that Be-Mobile can contact you about your application if necessary.
  
 The Directions API uses an API key to identify your application. API keys are managed through the [Be-Mobile API console](https://developers.be-mobile-international.com/api/console). To create your key:
 
 1. Visit the API console at https://developers.be-mobile-international.com/api/console and log in with your Be-Mobile Account.
-
 2. Click the **Services** link from the left-hand menu in the APIs Console, then activate the **Directions API** service.
-
 3. Once the service has been activated, your API key is available from the **API Access** page, in the **Simple API Access** section. Directions API applications use the Key for server apps.
 
 To specify a key in your request, include it as the value of a key parameter.
 
 > **Note**: By default, a key can be used from any server. We strongly recommend that you restrict the use of your key by IP address to servers that you administer. You can specify which IP addresses are allowed to use your API key by clicking the **Edit allowed referers...** link in the API console.
 
-----
+
 
 > **Note**: HTTPS is enforced for requests that include an API key.
-
 
 # Group Routeplanner
 ## Introduction
@@ -48,7 +43,6 @@ This service is generally designed for calculating directions for static (known 
       
 Route planning is a time and resource intensive task. Whenever possible, calculate known addresses ahead of time (using the service described here) and store your results in a temporary cache of your own design.
       
-
 ## Usage Limits
 
 The Routeplanner API has the following limits in place:
@@ -59,13 +53,11 @@ Users of the free API:
 * Up to 8 waypoints allowed in each request.
 * 10 requests per second.
 
-
 Business Users:
 
 * 100,000 requests per 24 hour period.
 * 23 waypoints allowed in each request.
 * 10 requests per second.
-
 
 Routeplanner API URLs are restricted to approximately 2000 characters, after URL Encoding. As some Routeplanner API URLs may involve many locations along a path, be aware of this limit when constructing your URLs.
 
@@ -78,14 +70,15 @@ When you calculate directions, you may specify which transportation `mode` to us
 * `bicycle` requests bicycling directions via bicycle paths & preferred streets (where available).
 * `public_transport` requests directions via public transport (where available).
 
-
 ## Using Waypoints
 
 When calculating routes using the Routeplanner endpoint, you may also specify waypoints for driving, walking or bicycling directions. Waypoints allow you to calculate routes through additional locations, in which case the returned route passes through the given waypoints.
 
 Waypoints are specified within the waypoints parameter and consist of one or more addresses or locations separated by the pipe (|) character.
 
-By default, the Routeplanner service calculates a route through the provided waypoints in their given order. Optionally, you may pass `optimize:true` as the first argument within the waypoints parameter to allow the Routeplanner service to optimize the provided route by rearranging the waypoints in a more efficient order. (This optimization is an application of the [Travelling Salesman Problem](http://en.wikipedia.org/wiki/Travelling_salesman_problem).)
+## Travelling Salesman
+
+By default, the Routeplanner service calculates a route through the provided waypoints in their given order. Optionally, you may pass `optimize:true` as the first argument within the waypoints parameter to allow the Routeplanner service to optimize the provided route by rearranging the waypoints in a more efficient order. This optimization is an application of the [Travelling Salesman Problem](http://en.wikipedia.org/wiki/Travelling_salesman_problem).
 
 If you instruct the Routeplanner service to optimize the order of its waypoints, their order will be returned in the `waypoint_order` field within the routes object. The `waypoint_order` field returns values which are zero-based.
 
@@ -96,7 +89,6 @@ Directions may be calculated that adhere to certain restrictions. Restrictions a
 * `tolls`
 * `highways`
 * `ferries`
-
 
 It's possible to request a route that avoids any combination of tolls, highways and ferries by passing both restrictions to the avoid parameter. For example: `avoid=tolls|highways|ferries`.
 
@@ -110,7 +102,6 @@ You can also set the Routeplanner service to return results biased to a particul
     + format (required, string, `json`) ... `format` may be either of the following values:    
     
         * `json` (recommended) indicates output in JavaScript Object Notation (JSON)
-
         * `xml` indicates output as XML
         
     + origin (required, string, `Ghent, Belgium or 51.123141|3.1491351`) ... The address or textual latitude/longitude value from which you wish to calculate directions. If you pass an address as a string, the Routeplanner service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values.
@@ -120,11 +111,8 @@ You can also set the Routeplanner service to return results biased to a particul
     + mode (optional, string, `bicycle|train`) ... Specifies the mode of transport to use when calculating directions. Values can be pipe-concatenated. Valid values are:
         
         * `foot`
-        
         * `bicycle`
-        
         * `public_transport`
-        
         * `car`
         
     + waypoints (optional, string, `Lokeren|St.-Niklaas`) ... Specifies an array of waypoints. Waypoints alter a route by routing it through the specified location(s). A waypoint is specified as either a latitude/longitude coordinate or as an address which will be geocoded. (For more information on waypoints, see Using Waypoints)
@@ -134,9 +122,7 @@ You can also set the Routeplanner service to return results biased to a particul
     + avoid (optional, string, `toll|highways`) ... Indicates that the calculated route(s) should avoid the indicated features. This parameter supports the following arguments. 
         
         * `tolls` indicates that the calculated route should avoid toll roads/bridges. 
-        
         * `highways` indicates that the calculated route should avoid highways. 
-        
         * `ferries` indicates that the calculated route should avoid ferries.
     
     + region (optional, string, `be`) ... The region code, specified as a ccTLD ("top-level domain") two-character value. (For more information see Region Biasing)
@@ -147,26 +133,18 @@ You can also set the Routeplanner service to return results biased to a particul
     
     + routing_cost (optional, string, `optimal_speed`) ... Routing cost model. Options are 
     
-        * `optimal_speed`
-        
+        * `optimal_speed` 
         * `simple_osm`
-        
         * `realtime`
-        
         * `smart`
-        
         * `optimal_alternative`
-        
         * `realtime_alternative`
 
     + effective_cost (optional, string, `optimal_speed`) ... Effective cost model. Options are 
     
         * `optimal_speed`
-        
         * `simple_osm`
-        
         * `realtime`
-        
         * `smart`
         
     + key (required, string, `BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI`) ... All Routeplanner API applications should use an API key.
@@ -258,3 +236,120 @@ Once a route is defined between two locations (see `routeplanner`), a travel tim
 * **real-time**: based on the current traffic situation
 * **short-term prediction**: based on the current traffic situation, a prediction can be made for the next 15-30-60 minutes
 * **long-term prediction**: based on planned events, historical information a prediction can be made for upcomming days, weeks or months.
+
+
+
+# Group Accessibility
+
+## Introduction 
+
+Accessibility gives you area that can be reached within a certain time from a location at a certain moment. Alternatively, it gives you the area from which a certain location can be reached within a certain time.
+
+The size of the reachable area can fluctuate heavily depending on traffic congestion.
+ 
+The `accessibility` endpoint enables you to request the reachable area for both options on *typical* (averaged) days, for example, 'A typical monday'.
+
+You can also save a number of locations to be able to quickly see if they are reachable or not at a certain moment. These locations are associated with your API key
+
+> **Note**: An update of your locations will erase any previous locations you have stored.
+
+## Accessibility [/accessibility/{format}{?location,direction,day,time,time_underway,key]
+
+### Get area [GET]
+
++ Parameters
+    + format (required, string, `json`) ... `format` may be either of the following values:    
+    
+        * `json` (recommended) indicates output in JavaScript Object Notation (JSON)
+        * `xml` indicates output as XML
+        
+    + location (required, string, `Ghent, Belgium or 51.123141|3.1491351`) ... The address or textual latitude/longitude value that is the origin or destination (depending on the `direction`) of the accesible area. If you pass an address as a string, the Routeplanner service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values.
+
+    + direction (optional, string, `from`) ... Direction indicatis whether the given `location` is the origin of the destination of the reachable area. This makes a difference for the time it takes between the stored locations and the asked location. (See storing locations below.) Default is `from`. Options are
+
+        * `from` to indicate a start from the given `location`
+        * `to` to indicate starting from stored locations and trying to reach the given `location` within `time_underway`
+
+    + typeday (required, string, `monday`) ... Typical day for which the calculation is done. Options are: 
+
+        * `monday`
+        * `tuesday`
+        * `wednesday`
+        * `thursday`
+        * `friday`
+        * `saturday`
+        * `sunday`
+
+    + time (required, string, `23:00`) ... At what time the reachable area should be calculated. A time during rush hour will usually give very different results from the middle of the night. Format is `HH:mm`, with `HH` ranging from `00` to `23` and `mm` ranging from `00` to `59`.
+
+    + time_underway (optional, integer, `3600`) ... The time in seconds that can be spend underway trying to reach an area or the stored locations. Default is 5400 (1,5 hours).
+
+    + key (required, string, `BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI`) ... All Routeplanner API applications should use an API key.
+
++ Response 200 (application/json)
+
+    + Header
+
+    + Body
+    
+            {
+              "status": "OK",
+              "locations": {
+                "type": "FeatureCollection",
+                  "features": [
+                    {
+                      "type": "Feature",
+                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+                      "properties": {"description": "Main store", "time": 1027 }
+                    },
+                    {
+                      "type": "Feature",
+                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+                      "properties": {"description": "Warehouse North", "time": 4231 }
+                    },
+                    {
+                      "type": "Feature",
+                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+                      "properties": {"description": "Warehouse East", "time": 805 }
+                    }
+                  ]
+                }
+              }
+              "area": {
+                "type": "FeatureCollection",
+                "features": [
+                { 
+                  "type": "Feature",
+                   "geometry": {
+                     "type": "Polygon",
+                     "coordinates": [
+                       [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
+                         [100.0, 1.0], [100.0, 0.0] ]
+                       ]
+                   },
+                   "properties": {
+                     "time": 1800,
+                     "position": 1
+                     }
+                  },
+                { 
+                  "type": "Feature",
+                   "geometry": {
+                     "type": "Polygon",
+                     "coordinates": [
+                       [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
+                         [100.0, 1.0], [100.0, 0.0] ]
+                       ]
+                   },
+                   "properties": {
+                     "time": 3600,
+                     "position": 2
+                     }
+                  }
+                ]
+              }
+            }
+
+### Store locations [POST]
+
+
