@@ -96,7 +96,7 @@ It's possible to request a route that avoids any combination of tolls, highways 
 
 You can also set the Routeplanner service to return results biased to a particular region by use of the `region` parameter. This parameter takes a ccTLD (country code top-level domain) argument specifying the region bias. Most ccTLD codes are identical to ISO 3166-1 codes, with some notable exceptions. For example, the United Kingdom's ccTLD is "uk" (.co.uk) while its ISO 3166-1 code is "gb" (technically for the entity of "The United Kingdom of Great Britain and Northern Ireland").
 
-## Routeplanner [/routeplanner/{format}{?origin,destination,mode,waypoints,alternatives,avoid,region,departure_time,arrival_time,routing_cost,effective_cost,key}]
+## API Calls [/routeplanner/{format}{?origin,destination,mode,waypoints,alternatives,avoid,region,departure_time,arrival_time,routing_cost,effective_cost,key}]
 ### Get directions [GET]
 + Parameters
     + format (required, string, `json`) ... `format` may be either of the following values:    
@@ -249,11 +249,11 @@ The size of the reachable area can fluctuate heavily depending on traffic conges
  
 The `accessibility` endpoint enables you to request the reachable area for both options on *typical* (averaged) days, for example, 'A typical monday'.
 
-You can also save a number of locations to be able to quickly see if they are reachable or not at a certain moment. These locations are associated with your API key
+You can also save a number of locations to be able to quickly see if they are reachable or not at a certain moment. These locations are associated with your API key.
 
 > **Note**: An update of your locations will erase any previous locations you have stored.
 
-## Accessibility [/accessibility/{format}{?location,direction,day,time,time_underway,key}]
+## API Calls [/accessibility/{format}{?location,direction,typeday,time,time_underway,key}]
 
 ### Get area [GET]
 
@@ -263,9 +263,9 @@ You can also save a number of locations to be able to quickly see if they are re
         * `json` (recommended) indicates output in JavaScript Object Notation (JSON)
         * `xml` indicates output as XML
         
-    + location (required, string, `Ghent, Belgium or 51.123141|3.1491351`) ... The address or textual latitude/longitude value that is the origin or destination (depending on the `direction`) of the accesible area. If you pass an address as a string, the Routeplanner service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values.
+    + location (required, string, `Ghent, Belgium or 51.123141|3.1491351`) ... The address or textual latitude/longitude value that is the origin or destination (depending on the `direction`) of the accesible area. If you pass an address as a string, the Accessibility service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values.
 
-    + direction (optional, string, `from`) ... Direction indicatis whether the given `location` is the origin of the destination of the reachable area. This makes a difference for the time it takes between the stored locations and the asked location. (See storing locations below.) Default is `from`. Options are
+    + direction (optional, string, `from`) ... `direction` indicates whether the given `location` is the origin of the destination of the reachable area. This makes a difference for the time it takes between the stored locations and the asked location. (See 'Storing locations') Default is `from`. Options are
 
         * `from` to indicate a start from the given `location`
         * `to` to indicate starting from stored locations and trying to reach the given `location` within `time_underway`
