@@ -32,6 +32,12 @@ To specify a key in your request, include it as the value of a key parameter.
 
 > **Note**: HTTPS is enforced for requests that include an API key.
 
+## XML versus JSON
+
+We recommend that you use json as the preferred output flag unless your service requires xml for some reason. Processing XML trees requires some care, so that you reference proper nodes and elements. JSON is lighter, faster and easier to read (both by people and machines).
+
+> The remainder of this documentation will use JSON syntax. In most cases, the output format does not matter for purposes of illustrating concepts or field names in the documentation. However, note that blank elements are indicated through empty arrays in JSON, but by the absence of any such element in XML.
+
 # Group Routeplanner
 ## Introduction
       
@@ -96,7 +102,9 @@ It's possible to request a route that avoids any combination of tolls, highways 
 
 You can also set the Routeplanner service to return results biased to a particular region by use of the `region` parameter. This parameter takes a ccTLD (country code top-level domain) argument specifying the region bias. Most ccTLD codes are identical to ISO 3166-1 codes, with some notable exceptions. For example, the United Kingdom's ccTLD is "uk" (.co.uk) while its ISO 3166-1 code is "gb" (technically for the entity of "The United Kingdom of Great Britain and Northern Ireland").
 
-## API Calls [/routeplanner/{format}{?origin,destination,mode,waypoints,alternatives,avoid,region,departure_time,arrival_time,routing_cost,effective_cost,key}]
+Region codes can be concatenated using the pipe symbol (|).
+
+## Routeplanner API Calls [/routeplanner/{format}{?origin,destination,mode,waypoints,alternatives,avoid,region,departure_time,arrival_time,routing_cost,effective_cost,key}]
 ### Get directions [GET]
 + Parameters
     + format (required, string, `json`) ... `format` may be either of the following values:    
@@ -115,7 +123,7 @@ You can also set the Routeplanner service to return results biased to a particul
         * `public_transport`
         * `car`
         
-    + waypoints (optional, string, `Lokeren|St.-Niklaas`) ... Specifies an array of waypoints. Waypoints alter a route by routing it through the specified location(s). A waypoint is specified as either a latitude/longitude coordinate or as an address which will be geocoded. (For more information on waypoints, see Using Waypoints)
+    + waypoints (optional, string, `Lokeren|St.-Niklaas`) ... Specifies an array of waypoints. Waypoints alter a route by routing it through the specified location(s). A waypoint is specified as either a latitude/longitude coordinate or as an address which will be geocoded. (For more information on waypoints, see Using Waypoints and Travelling Salesman)
     
     + alternatives (optional, integer, `3`) ... Specifies the number of route alternatives the Routeplanner service may provide. Note that providing route alternatives may increase the response time from the server.
     
@@ -226,16 +234,119 @@ You can also set the Routeplanner service to return results biased to a particul
               } ]
             }
 
-# Group Travel Time
+# Group Travel Time Matrix
 
 ## Introduction 
 
-Once a route is defined between two locations (see `routeplanner`), a travel time can be provided. A travel time is the needed time it takes to travel from the start-location to the end-location. A travel time can either be:
+A travel time is the needed time it takes to travel from origin to destination. A travel time can either be:
 
-* **historic**: for a specific day and timestamp
-* **real-time**: based on the current traffic situation
-* **short-term prediction**: based on the current traffic situation, a prediction can be made for the next 15-30-60 minutes
-* **long-term prediction**: based on planned events, historical information a prediction can be made for upcomming days, weeks or months.
+* **historic**: for a specific day and timestamp.
+* **real time**: based on the current traffic situation.
+* **short term prediction**: based on the evolution of the current traffic situation, a prediction can be made for up to 60 minutes.
+* **long term prediction**: based on historical averages, a prediction can be made for upcoming days, weeks and months.
+
+A travel time matrix is then the times it will take to get from a group of origins to a group of destinations. Example: A set of broken down cars and a set of dispatching vehicles, or a set of people and a set of taxis. This matrix can even be extended in time, for example to give an average travel time, every quarter of an hour, every day of the week, between a set of warehouses and a set of stores, making the matrix three-dimensional. 
+
+A two-dimensional matrix can again be squashed to keep only the optimal travel times. In case the size of the origin and destination sets is different, some of the origins or destinations will be left out. For example: only the closest dispatching vehicles will be sent to the broken down cars, or only the closest people will be serviced by taxis.
+
+Calculating a travel time matrix for sets that are bigger that 10x10 is a very time and resource intensive task, even more so if the matrix is extended in time.
+
+## Travel Time Matrix API Calls [/traveltimematrix/{format}]
+
+### Get the matrix [POST]
+
+> This is a POST since the origin-destination matrix can contain a lot of locations, quickly surpassing the 2kb GET limit in some browsers.
+
++ Parameters
+    + format (required, string, `json`) ... `format` may be either of the following values:    
+    
+        * `json` (recommended) indicates output in JavaScript Object Notation (JSON)
+        * `xml` indicates output as XML
+        
++ Request (application/json)
+
+    + Header
+
+    + Body
+    
+            {
+              "key": "BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI",
+              "type": "historic",
+              "from": "2014-10-22T09:00:00Z",
+              "to": "2014-10-29T23:00:00Z",
+              "interval": 900,
+              "optimize": false,
+              "origins": [
+                {
+                  "coordinates": [102.0, 0.5],
+                  "properties": {"id": 1, "Organisation": "ACME", "description": "Warehouse North" }
+                },
+                {
+                  "coordinates": [102.0, 0.5],
+                  "properties": {"id": 2, "Organisation": "ACME", "description": "Warehouse East" }
+                }
+              ],
+              "destinations": [
+                {
+                  "coordinates": [102.0, 0.5],
+                  "properties": {"id": 1, "Organisation": "ACME", "description": "Shop Center City" }
+                },
+                {
+                  "coordinates": [102.0, 0.5],
+                  "properties": {"id": 2, "Organisation": "ACME", "description": "Shop Countryside" }
+                },
+                {
+                  "coordinates": [102.0, 0.5],
+                  "properties": {"id": 3, "Organisation": "ACME", "description": "Shop North" }
+                },
+                {
+                  "coordinates": [102.0, 0.5],
+                  "properties": {"id": 4, "Organisation": "ACME", "description": "Shop South" }
+                },
+              ],
+            }
+
++ Response 200 (application/json)
+
+    + Header
+
+    + Body
+    
+            {
+              "status": "OK",
+              "matrix": [
+                {
+                  "timestamp": "2014-10-22T09:00:00Z",
+                  "pairs": [
+                    {
+                      "properties": {"id": 1, "Organisation": "ACME", "description": "Warehouse North" }
+                      "traveltimes": [
+                        {"id": 1, "Organisation": "ACME", "description": "Shop Center City", "time": "15810" },
+                        {"id": 2, "Organisation": "ACME", "description": "Shop Countryside", "time": "22111" },
+                        {"id": 3, "Organisation": "ACME", "description": "Shop North", "time": "8624" },
+                        {"id": 4, "Organisation": "ACME", "description": "Shop South", "time": "18624" }
+                      ]
+                    },
+                    {
+                      "properties": {"id": 2, "Organisation": "ACME", "description": "Warehouse East" }
+                      "traveltimes": [
+                        {"id": 1, "Organisation": "ACME", "description": "Shop Center City", "time": "13810" },
+                        {"id": 2, "Organisation": "ACME", "description": "Shop Countryside", "time": "32111" },
+                        {"id": 3, "Organisation": "ACME", "description": "Shop North", "time": "14624" },
+                        {"id": 4, "Organisation": "ACME", "description": "Shop South", "time": "16624" }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "timestamp": "2014-10-22T09:15:00Z",
+                  "pairs": [
+                  ... same pairs with different travel times
+                  ]
+                },
+                ... additional timestamps, each with origin destination pairs
+              ]
+            }
 
 
 
@@ -263,9 +374,9 @@ You can also save a number of locations to be able to quickly see if they are re
         * `json` (recommended) indicates output in JavaScript Object Notation (JSON)
         * `xml` indicates output as XML
         
-    + location (required, string, `Ghent, Belgium or 51.123141|3.1491351`) ... The address or textual latitude/longitude value that is the origin or destination (depending on the `direction`) of the accesible area. If you pass an address as a string, the Accessibility service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values.
+    + location (optional, string, `Ghent, Belgium or 51.123141|3.1491351`) ... The address or textual latitude/longitude value that is the origin or destination (depending on the `direction`) of the accesible area. If you pass an address as a string, the Accessibility service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values. If **no location** is given, calculations will be done for all saved locations.
 
-    + direction (optional, string, `from`) ... `direction` indicates whether the given `location` is the origin of the destination of the reachable area. This makes a difference for the time it takes between the saved locations and the asked location. (See 'Storing locations') Default is `from`. Options are
+    + direction (optional, string, `from`) ... `direction` indicates whether the given `location` is the origin of the destination of the reachable area. This makes a difference for the time it takes between the saved locations and the asked location. (See 'Storing locations'). If no direction is given, no calculations will be done for saved locations. In this case, `visualisation` will automatically be `true`. Options are
 
         * `from` to indicate a start from the given `location`
         * `to` to indicate starting from saved locations and trying to reach the given `location` within `time_underway`
@@ -284,7 +395,7 @@ You can also save a number of locations to be able to quickly see if they are re
 
     + time_underway (optional, integer, `3600`) ... The time in seconds that can be spend underway trying to reach an area or the saved locations. Default is 5400 (1,5 hours).
 
-    + visualisation (optional, string, `true`) ... If set to true, specifies that the Accessibility service returns a visual representation of the accessible areas.
+    + visualisation (optional, string, `true`) ... If set to true, specifies that the Accessibility service returns a visual representation of the accessible areas. Calculation the visualisation is a time and resource intensive task. Default value is `false`, unless the `direction` parameter is set to `true`.
 
     + key (required, string, `BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI`) ... All Accessibility API applications should use an API key.
 
@@ -349,7 +460,7 @@ You can also save a number of locations to be able to quickly see if they are re
 
 ## Location API Calls [/accessibility/locations/{format}{?key}]
 
-### Get locations [POST]
+### Get locations [GET]
 
 + Parameters
     + format (required, string, `json`) ... `format` may be either of the following values:    
@@ -357,7 +468,7 @@ You can also save a number of locations to be able to quickly see if they are re
         * `json` (recommended) indicates output in JavaScript Object Notation (JSON)
         * `xml` indicates output as XML
         
-    + key (required, string, `BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI`) ... All Routeplanner API applications should use an API key.
+    + key (required, string, `BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI`) ... All Accessibility API applications should use an API key.
 
 + Response 200 (application/json)
 
@@ -394,25 +505,19 @@ You can also save a number of locations to be able to quickly see if they are re
     + Body
     
             {
-              "status": "OK",
-              "locations": {
-                "type": "FeatureCollection",
-                  "features": [
-                    {
-                      "type": "Feature",
-                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
-                      "properties": {"Organisation": "ACME", "description": "Warehouse North", "time": 4231 }
-                    },
-                    {
-                      "type": "Feature",
-                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
-                      "properties": {"Organisation": "ACME", "description": "Warehouse East", "time": 805 }
-                    }
-                  ]
+              "key": "BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI",
+              "locations": [
+                {
+                  "coordinates": [102.0, 0.5],
+                  "properties": {"Organisation": "ACME", "description": "Warehouse North" }
+                },
+                {
+                  "coordinates": [102.0, 0.5],
+                  "properties": {"Organisation": "ACME", "description": "Warehouse East" }
                 }
-              }
+              ]
             }
-            
+
 + Response 201
 
     + Header
@@ -427,12 +532,12 @@ You can also save a number of locations to be able to quickly see if they are re
                     {
                       "type": "Feature",
                       "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
-                      "properties": {"Organisation": "ACME", "description": "Warehouse North", "time": 4231 }
+                      "properties": {"Organisation": "ACME", "description": "Warehouse North" }
                     },
                     {
                       "type": "Feature",
                       "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
-                      "properties": {"Organisation": "ACME", "description": "Warehouse East", "time": 805 }
+                      "properties": {"Organisation": "ACME", "description": "Warehouse East" }
                     }
                   ]
                 }
