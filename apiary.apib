@@ -251,9 +251,9 @@ The `accessibility` endpoint enables you to request the reachable area for both 
 
 You can also save a number of locations to be able to quickly see if they are reachable or not at a certain moment. These locations are associated with your API key.
 
-> **Note**: An update of your locations will erase any previous locations you have stored.
+> **Note**: An update of your locations will erase any previous locations you have saved.
 
-## API Calls [/accessibility/{format}{?location,direction,typeday,time,time_underway,key}]
+## Accessibility API Calls [/accessibility/{format}{?location,direction,typeday,time,time_underway,visualisation,key}]
 
 ### Get area [GET]
 
@@ -265,10 +265,10 @@ You can also save a number of locations to be able to quickly see if they are re
         
     + location (required, string, `Ghent, Belgium or 51.123141|3.1491351`) ... The address or textual latitude/longitude value that is the origin or destination (depending on the `direction`) of the accesible area. If you pass an address as a string, the Accessibility service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values.
 
-    + direction (optional, string, `from`) ... `direction` indicates whether the given `location` is the origin of the destination of the reachable area. This makes a difference for the time it takes between the stored locations and the asked location. (See 'Storing locations') Default is `from`. Options are
+    + direction (optional, string, `from`) ... `direction` indicates whether the given `location` is the origin of the destination of the reachable area. This makes a difference for the time it takes between the saved locations and the asked location. (See 'Storing locations') Default is `from`. Options are
 
         * `from` to indicate a start from the given `location`
-        * `to` to indicate starting from stored locations and trying to reach the given `location` within `time_underway`
+        * `to` to indicate starting from saved locations and trying to reach the given `location` within `time_underway`
 
     + typeday (required, string, `monday`) ... Typical day for which the calculation is done. Options are: 
 
@@ -282,9 +282,11 @@ You can also save a number of locations to be able to quickly see if they are re
 
     + time (required, string, `23:00`) ... At what time the reachable area should be calculated. A time during rush hour will usually give very different results from the middle of the night. Format is `HH:mm`, with `HH` ranging from `00` to `23` and `mm` ranging from `00` to `59`.
 
-    + time_underway (optional, integer, `3600`) ... The time in seconds that can be spend underway trying to reach an area or the stored locations. Default is 5400 (1,5 hours).
+    + time_underway (optional, integer, `3600`) ... The time in seconds that can be spend underway trying to reach an area or the saved locations. Default is 5400 (1,5 hours).
 
-    + key (required, string, `BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI`) ... All Routeplanner API applications should use an API key.
+    + visualisation (optional, string, `true`) ... If set to true, specifies that the Accessibility service returns a visual representation of the accessible areas.
+
+    + key (required, string, `BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI`) ... All Accessibility API applications should use an API key.
 
 + Response 200 (application/json)
 
@@ -300,22 +302,17 @@ You can also save a number of locations to be able to quickly see if they are re
                     {
                       "type": "Feature",
                       "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
-                      "properties": {"description": "Main store", "time": 1027 }
+                      "properties": {"Organisation": "ACME", "description": "Warehouse North", "time": 4231 }
                     },
                     {
                       "type": "Feature",
                       "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
-                      "properties": {"description": "Warehouse North", "time": 4231 }
-                    },
-                    {
-                      "type": "Feature",
-                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
-                      "properties": {"description": "Warehouse East", "time": 805 }
+                      "properties": {"Organisation": "ACME", "description": "Warehouse East", "time": 805 }
                     }
                   ]
                 }
               }
-              "area": {
+              "visualisation": {
                 "type": "FeatureCollection",
                 "features": [
                 { 
@@ -350,6 +347,94 @@ You can also save a number of locations to be able to quickly see if they are re
               }
             }
 
-### Store locations [POST]
+## Location API Calls [/accessibility/locations/{format}{?key}]
 
+### Get locations [POST]
 
++ Parameters
+    + format (required, string, `json`) ... `format` may be either of the following values:    
+    
+        * `json` (recommended) indicates output in JavaScript Object Notation (JSON)
+        * `xml` indicates output as XML
+        
+    + key (required, string, `BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI`) ... All Routeplanner API applications should use an API key.
+
++ Response 200 (application/json)
+
+    + Header
+
+    + Body
+    
+            {
+              "status": "OK",
+              "locations": {
+                "type": "FeatureCollection",
+                  "features": [
+                    {
+                      "type": "Feature",
+                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+                      "properties": {"Organisation": "ACME", "description": "Warehouse North", "time": 4231 }
+                    },
+                    {
+                      "type": "Feature",
+                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+                      "properties": {"Organisation": "ACME", "description": "Warehouse East", "time": 805 }
+                    }
+                  ]
+                }
+              }
+            }
+
+### Save locations [POST]
+
++ Request (application/json)
+
+    + Header
+
+    + Body
+    
+            {
+              "status": "OK",
+              "locations": {
+                "type": "FeatureCollection",
+                  "features": [
+                    {
+                      "type": "Feature",
+                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+                      "properties": {"Organisation": "ACME", "description": "Warehouse North", "time": 4231 }
+                    },
+                    {
+                      "type": "Feature",
+                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+                      "properties": {"Organisation": "ACME", "description": "Warehouse East", "time": 805 }
+                    }
+                  ]
+                }
+              }
+            }
+            
++ Response 201
+
+    + Header
+
+    + Body
+    
+            {
+              "status": "OK",
+              "locations": {
+                "type": "FeatureCollection",
+                  "features": [
+                    {
+                      "type": "Feature",
+                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+                      "properties": {"Organisation": "ACME", "description": "Warehouse North", "time": 4231 }
+                    },
+                    {
+                      "type": "Feature",
+                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+                      "properties": {"Organisation": "ACME", "description": "Warehouse East", "time": 805 }
+                    }
+                  ]
+                }
+              }
+            }
