@@ -26,11 +26,7 @@ The Directions API uses an API key to identify your application. API keys are ma
 
 To specify a key in your request, include it as the value of a key parameter.
 
-> **Note**: By default, a key can be used from any server. We strongly recommend that you restrict the use of your key by IP address to servers that you administer. You can specify which IP addresses are allowed to use your API key by clicking the **Edit allowed referers...** link in the API console.
-
-
-
-> **Note**: HTTPS is enforced for requests that include an API key.
+> **Note**: By default, a key can be used from any server. We strongly recommend that you restrict the use of your key by IP address to servers that you administer. You can specify which IP addresses are allowed to use your API key by clicking the **Edit allowed referers...** link in the API console. HTTPS is enforced for requests that include an API key.
 
 ## XML versus JSON
 
@@ -245,17 +241,35 @@ A travel time is the needed time it takes to travel from origin to destination. 
 * **short term prediction**: based on the evolution of the current traffic situation, a prediction can be made for up to 60 minutes.
 * **long term prediction**: based on historical averages, a prediction can be made for upcoming days, weeks and months.
 
-A travel time matrix is then the times it will take to get from a group of origins to a group of destinations. Example: A set of broken down cars and a set of dispatching vehicles, or a set of people and a set of taxis. This matrix can even be extended in time, for example to give an average travel time, every quarter of an hour, every day of the week, between a set of warehouses and a set of stores, making the matrix three-dimensional. 
+A travel time matrix is then the times it will take to get from a set of origins to a set of destinations. Example: A set of broken down cars and a set of dispatching vehicles, or a set of people and a set of taxis. This matrix can even be extended in time, for example to give an average travel time, every quarter of an hour, every day of the week, between a set of warehouses and a set of stores, making the matrix three-dimensional. 
 
-A two-dimensional matrix can again be squashed to keep only the optimal travel times. In case the size of the origin and destination sets is different, some of the origins or destinations will be left out. For example: only the closest dispatching vehicles will be sent to the broken down cars, or only the closest people will be serviced by taxis.
+## Optimal Travel Times
 
-Calculating a travel time matrix for sets that are bigger that 10x10 is a very time and resource intensive task, even more so if the matrix is extended in time.
+A two-dimensional matrix can again be squashed to keep only the optimal travel times. In case the size of the origin and destination sets is different, some of the origins or destinations will be left out. For example: only the closest dispatching vehicles will be sent to the broken down cars, or only the people closest to taxis will actually get a taxi.
+
+## Usage Limits
+
+Calculating a travel time matrix for sets that are bigger that 10x10 is a very time and resource intensive task, even more so if the matrix is extended in time. Therefore, the Travel Time Matrix API has the following limits in place:
+
+Users of the free API:
+
+* 1,000 requests per 24 hour period.
+* Up to 30 origins and 30 destinations allowed in each request.
+* Maximum depth of the time dimension is 48 (every half hour for 1 day)
+* 1 request per 30 seconds.
+
+Business Users:
+
+* 10,000 requests per 24 hour period.
+* Up to 300 origins and 300 destinations allowed in each request.
+* Maximum depth of the time dimension is 672 (every quarter of an hour for 1 week)
+* 1 request per 5 seconds.
 
 ## Travel Time Matrix API Calls [/traveltimematrix/{format}]
 
 ### Get the matrix [POST]
 
-> This is a POST since the origin-destination matrix can contain a lot of locations, quickly surpassing the 2kb GET limit in some browsers.
+> This is a POST since the origin-destination matrix can contain a lot of locations, quickly surpassing the 2kb GET limit of some browsers.
 
 + Parameters
     + format (required, string, `json`) ... `format` may be either of the following values:    
@@ -357,14 +371,22 @@ Calculating a travel time matrix for sets that are bigger that 10x10 is a very t
 Accessibility gives you area that can be reached within a certain time from a location at a certain moment. Alternatively, it gives you the area from which a certain location can be reached within a certain time.
 
 The size of the reachable area can fluctuate heavily depending on traffic congestion.
- 
-The `accessibility` endpoint enables you to request the reachable area for both options on *typical* (averaged) days, for example, 'A typical monday'.
 
-You can also save a number of locations to be able to quickly see if they are reachable or not at a certain moment. These locations are associated with your API key.
+## Saving locations
+ 
+You can save a number of locations to be able to quickly see if they are reachable or not at a certain moment. These locations are associated with your API key. 
 
 > **Note**: An update of your locations will erase any previous locations you have saved.
 
-## Accessibility API Calls [/accessibility/{format}{?location,direction,typeday,time,time_underway,visualisation,key}]
+## Date and time
+
+The `accessibility` endpoint enables you to request the reachable area for both options on *typical* (averaged) days, for example, 'A typical monday' as well as for days in the past or real time.
+
+* For a **typical day**, fill in the `typeday` and `time` parameters. 
+* For a **moment in the past**, fill in `date` and `time` parameters.
+* For a **real time** calculation, leave out parameters `typeday`, `date` and `time`.
+
+## Accessibility API Calls [/accessibility/{format}{?location,direction,mode,typeday,date,time,time_underway,visualisation,key}]
 
 ### Get area [GET]
 
@@ -381,7 +403,14 @@ You can also save a number of locations to be able to quickly see if they are re
         * `from` to indicate a start from the given `location`
         * `to` to indicate starting from saved locations and trying to reach the given `location` within `time_underway`
 
-    + typeday (required, string, `monday`) ... Typical day for which the calculation is done. Options are: 
+    + mode (optional, string, `bicycle|train`) ... Specifies the mode of transport to use when calculating directions. Values can be pipe-concatenated. Default is `car`. Valid values are:
+        
+        * `foot`
+        * `bicycle`
+        * `public_transport`
+        * `car`
+        
+    + typeday (optional, string, `monday`) ... Typical day for which the calculation is done. Options are: 
 
         * `monday`
         * `tuesday`
@@ -391,11 +420,13 @@ You can also save a number of locations to be able to quickly see if they are re
         * `saturday`
         * `sunday`
 
-    + time (required, string, `23:00`) ... At what time the reachable area should be calculated. A time during rush hour will usually give very different results from the middle of the night. Format is `HH:mm`, with `HH` ranging from `00` to `23` and `mm` ranging from `00` to `59`.
+    + date (optional, string, `2014-`) ... Historical day for which the calculation is done. Format is `YYYY-MM-DD`.
+
+    + time (optional, string, `23:00`) ... At what time the reachable area should be calculated. A time during rush hour will usually give very different results from the middle of the night. Format is `HH:mm`, with `HH` ranging from `00` to `23` and `mm` ranging from `00` to `59`. Times are in UTC.
 
     + time_underway (optional, integer, `3600`) ... The time in seconds that can be spend underway trying to reach an area or the saved locations. Default is 5400 (1,5 hours).
 
-    + visualisation (optional, string, `true`) ... If set to true, specifies that the Accessibility service returns a visual representation of the accessible areas. Calculation the visualisation is a time and resource intensive task. Default value is `false`, unless the `direction` parameter is set to `true`.
+    + visualisation (optional, string, `true`) ... If set to `true`, specifies that the Accessibility service returns a visual representation of the accessible areas. Calculation the visualisation is a time and resource intensive task. Default value is `false`, unless the `direction` parameter is set to `true`.
 
     + key (required, string, `BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI`) ... All Accessibility API applications should use an API key.
 
