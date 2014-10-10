@@ -12,7 +12,7 @@ This document is intended for website and mobile developers who want to compute 
       
 > **Note**: Business users must include `client` and `signature` parameters with their requests instead of a key.
      
-All Directions API applications should use an API key. Including a key in your request:
+All Be-Mobile API applications should use an API key. Including a key in your request:
 
 * Allows you to monitor your application's API usage in the APIs Console.
 * Enables per-key instead of per-IP-address quota limits.
@@ -108,9 +108,9 @@ Region codes can be concatenated using the pipe symbol (|).
         * `json` (recommended) indicates output in JavaScript Object Notation (JSON)
         * `xml` indicates output as XML
         
-    + origin (required, string, `Ghent, Belgium or 51.123141|3.1491351`) ... The address or textual latitude/longitude value from which you wish to calculate directions. If you pass an address as a string, the Routeplanner service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values.
+    + origin (required, string, `Ghent, Belgium or 51.055|3.715`) ... The address or textual latitude/longitude value from which you wish to calculate directions. If you pass an address as a string, the Routeplanner service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values.
 
-    + destination (required, string, `Brussels, Belgium or 50.63141|4.051351`) ... The address or textual latitude/longitude value from which you wish to calculate directions. If you pass an address as a string, the Routeplanner service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values.
+    + destination (required, string, `Brussels, Belgium or 50.85|4.35`) ... The address or textual latitude/longitude value from which you wish to calculate directions. If you pass an address as a string, the Routeplanner service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values.
     
     + mode (optional, string, `bicycle|train`) ... Specifies the mode of transport to use when calculating directions. Values can be pipe-concatenated. Valid values are:
         
@@ -131,9 +131,9 @@ Region codes can be concatenated using the pipe symbol (|).
     
     + region (optional, string, `be`) ... The region code, specified as a ccTLD ("top-level domain") two-character value. (For more information see Region Biasing)
     
-    + departure_time (optional, integer, `1412255750`) ... Specifies the desired time of departure as seconds since midnight, January 1, 1970 UTC.
+    + departure_time (optional, string, `2014-10-22T09:00:00Z`) ... Specifies the desired time of departure in UTC. Format is `YYYY-MM-DDTHH:mm:ssZ`. `departure_time` and `arrival_time` cannot be specified together.
     
-    + arrival_time (optional, integer, `1412255750`) ... Specifies the desired time of arrival as seconds since midnight, January 1, 1970 UTC.
+    + arrival_time (optional, string, `2014-10-22T09:00:00Z`) ... Specifies the desired time of arrival in UTC. Format is `YYYY-MM-DDTHH:mm:ssZ`. `departure_time` and `arrival_time` cannot be specified together.
     
     + routing_cost (optional, string, `optimal_speed`) ... Routing cost model. Options are 
     
@@ -265,11 +265,35 @@ Business Users:
 * Maximum depth of the time dimension is 672 (every quarter of an hour for 1 week)
 * 1 request per 5 seconds.
 
-## Travel Time Matrix API Calls [/traveltimematrix/{format}]
+## Travel Time Matrix API Calls [/traveltimematrix/{format}{?origin,destination,type,departure_time,interval}]
 
-### Get the matrix [POST]
+### Get travel time for single route [GET]
 
-> This is a POST since the origin-destination matrix can contain a lot of locations, quickly surpassing the 2kb GET limit of some browsers.
+This call gets the travel time for a single route. 
+
++ Parameters
+    + format (required, string, `json`) ... `format` may be either of the following values:    
+    
+        * `json` (recommended) indicates output in JavaScript Object Notation (JSON)
+        * `xml` indicates output as XML
+        
+    + origin (required, string, `Ghent, Belgium or 51.055|3.715`) ... The address or textual latitude/longitude value from which you wish to calculate directions. If you pass an address as a string, the Routeplanner service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values.
+
+    + destination (required, string, `Brussels, Belgium or 50.85|4.35`) ... The address or textual latitude/longitude value from which you wish to calculate directions. If you pass an address as a string, the Routeplanner service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values.
+
+    + type (required, string, `historic`) ... Specifies the type of calculation to get the travel time. Possible values are: 
+
+        * `historic`: for a specific day and timestamp.
+        * `real time`: based on the current traffic situation.
+        * `short term prediction`: based on the evolution of the current traffic situation, a prediction can be made for up to 60 minutes.
+        * `long term prediction`: based on historical averages, a prediction can be made for upcoming days, weeks and months.
+
+    + departure_time (optional, string, `2014-10-22T09:00:00Z`) ... Specifies the desired time of departure in UTC. Format is `YYYY-MM-DDTHH:mm:ssZ`. 
+    
+
+### Get travel time matrix [POST]
+
+> This is a POST since the origin-destination matrix can contain a lot of locations, quickly surpassing the 2kb URL limit of some browsers.
 
 + Parameters
     + format (required, string, `json`) ... `format` may be either of the following values:    
@@ -286,8 +310,8 @@ Business Users:
             {
               "key": "BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI",
               "type": "historic",
-              "from": "2014-10-22T09:00:00Z",
-              "to": "2014-10-29T23:00:00Z",
+              "fromdate": "2014-10-22T09:00:00Z",
+              "todate": "2014-10-29T23:00:00Z",
               "interval": 900,
               "optimize": false,
               "origins": [
@@ -396,7 +420,7 @@ The `accessibility` endpoint enables you to request the reachable area for both 
         * `json` (recommended) indicates output in JavaScript Object Notation (JSON)
         * `xml` indicates output as XML
         
-    + location (optional, string, `Ghent, Belgium or 51.123141|3.1491351`) ... The address or textual latitude/longitude value that is the origin or destination (depending on the `direction`) of the accesible area. If you pass an address as a string, the Accessibility service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values. If **no location** is given, calculations will be done for all saved locations.
+    + location (optional, string, `Ghent, Belgium or 51.055|3.715`) ... The address or textual latitude/longitude value that is the origin or destination (depending on the `direction`) of the accesible area. If you pass an address as a string, the Accessibility service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values. If **no location** is given, calculations will be done for all saved locations.
 
     + direction (optional, string, `from`) ... `direction` indicates whether the given `location` is the origin of the destination of the reachable area. This makes a difference for the time it takes between the saved locations and the asked location. (See 'Storing locations'). If no direction is given, no calculations will be done for saved locations. In this case, `visualisation` will automatically be `true`. Options are
 
