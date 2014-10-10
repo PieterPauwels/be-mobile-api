@@ -112,7 +112,7 @@ Region codes can be concatenated using the pipe symbol (|).
 
     + destination (required, string, `Brussels, Belgium or 50.85|4.35`) ... The address or textual latitude/longitude value from which you wish to calculate directions. If you pass an address as a string, the Routeplanner service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values.
     
-    + mode (optional, string, `bicycle|train`) ... Specifies the mode of transport to use when calculating directions. Values can be pipe-concatenated. Valid values are:
+    + mode (optional, string, `bicycle|public_transport`) ... Specifies the mode of transport to use when calculating directions. Values can be pipe-concatenated. Valid values are:
         
         * `foot`
         * `bicycle`
@@ -188,10 +188,8 @@ Region codes can be concatenated using the pipe symbol (|).
                       "text": "0.1 mi"
                     }
                   },
-                  ...
-                  ... additional steps of this leg
-                ...
-                ... additional legs of this route
+                  // ... additional steps of this leg
+                //... additional legs of this route
                   "duration": {
                     "value": 74384,
                     "text": "20 hours 40 mins"
@@ -313,15 +311,15 @@ This call gets the travel time for a single route. The travel time can be calcul
                 },
                 {
                   "timestamp": "2014-10-22T09:15:00Z",
-                  ... same pair with different travel times
+                  // ... same pair with different travel times
                 },
-                ... additional timestamps
+                // ... additional timestamps
               ]
             }
 
 ### Get travel time matrix [PUT]
 
-> This is a PUT since the origin-destination matrix can contain a lot of locations, quickly surpassing the 2kb URL limit of some browsers. URL origin and destination parameters are **ignored** for this call.
+> This is a PUT since the origin-destination matrix can contain a lot of locations, quickly surpassing the 2kb URL limit of some browsers. URL `origin` and `destination` parameters are **ignored** for this call.
 
 + Parameters
     + format (required, string, `json`) ... `format` may be either of the following values:    
@@ -410,10 +408,10 @@ This call gets the travel time for a single route. The travel time can be calcul
                 {
                   "timestamp": "2014-10-22T09:15:00Z",
                   "pairs": [
-                  ... same pairs with different travel times
+                  // ... same pairs with different travel times
                   ]
                 },
-                ... additional timestamps, each with origin destination pairs
+                // ... additional timestamps, each with origin destination pairs
               ]
             }
 
@@ -456,7 +454,7 @@ The `accessibility` endpoint enables you to request the reachable area for both 
         * `from` to indicate a start from the given `location`
         * `to` to indicate starting from saved locations and trying to reach the given `location` within `time_underway`
 
-    + mode (optional, string, `bicycle|train`) ... Specifies the mode of transport to use when calculating directions. Values can be pipe-concatenated. Default is `car`. Valid values are:
+    + mode (optional, string, `bicycle|public_transport`) ... Specifies the mode of transport to use when calculating directions. Values can be pipe-concatenated. Default is `car`. Valid values are:
         
         * `foot`
         * `bicycle`
