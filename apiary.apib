@@ -119,7 +119,7 @@ Region codes can be concatenated using the pipe symbol (|).
         * `public_transport`
         * `car`
         
-    + waypoints (optional, string, `Lokeren|St.-Niklaas`) ... Specifies an array of waypoints. Waypoints alter a route by routing it through the specified location(s). A waypoint is specified as either a latitude/longitude coordinate or as an address which will be geocoded. (For more information on waypoints, see Using Waypoints and Travelling Salesman)
+    + waypoints (optional, string, `St.-Niklaas|Lokeren`) ... Specifies an array of waypoints. Waypoints alter a route by routing it through the specified location(s). A waypoint is specified as either a latitude/longitude coordinate or as an address which will be geocoded. (For more information on waypoints, see Using Waypoints and Travelling Salesman)
     
     + alternatives (optional, integer, `3`) ... Specifies the number of route alternatives the Routeplanner service may provide. Note that providing route alternatives may increase the response time from the server.
     
@@ -166,7 +166,7 @@ Region codes can be concatenated using the pipe symbol (|).
                 "summary": "E40 W",
                 "legs": [ {
                   "steps": [ {
-                    "travel_mode": "DRIVING",
+                    "travel_mode": "car",
                     "start_location": {
                       "lat": 41.8507300,
                       "lng": -87.6512600
@@ -190,14 +190,8 @@ Region codes can be concatenated using the pipe symbol (|).
                   },
                   // ... additional steps of this leg
                 //... additional legs of this route
-                  "duration": {
-                    "value": 74384,
-                    "text": "20 hours 40 mins"
-                  },
-                  "distance": {
-                    "value": 2137146,
-                    "text": "1,328 mi"
-                  },
+                  "duration": 74384,
+                  "distance": 2137146,
                   "start_location": {
                     "lat": 35.4675602,
                     "lng": -97.5164276
@@ -209,12 +203,12 @@ Region codes can be concatenated using the pipe symbol (|).
                   "start_address": "Ghent, Belgium",
                   "end_address": "Brussels, Belgium"
                 } ],
-                "copyrights": "Map data ©2014 Be-Mobile, Belgium",
+                "copyrights": "Route data ©2014 Be-Mobile, Belgium",
                 "overview_polyline": {
                   "points": "a~l~Fjk~uOnzh@vlbBtc~@tsE`vnApw{A`dw@~w\\|tNtqf@l{Yd_Fblh@rxo@b}@xxSfytAblk@xxaBeJxlcBb~t@zbh@jc|Bx}C`rv@rw|@rlhA~dVzeo@vrSnc}Axf]fjz@xfFbw~@dz{A~d{A|zOxbrBbdUvpo@`cFp~xBc`Hk@nurDznmFfwMbwz@bbl@lq~@loPpxq@bw_@v|{CbtY~jGqeMb{iF|n\\~mbDzeVh_Wr|Efc\\x`Ij{kE}mAb~uF{cNd}xBjp]fulBiwJpgg@|kHntyArpb@bijCk_Kv~eGyqTj_|@`uV`k|DcsNdwxAott@r}q@_gc@nu`CnvHx`k@dse@j|p@zpiAp|gEicy@`omFvaErfo@igQxnlApqGze~AsyRzrjAb__@ftyB}pIlo_BflmA~yQftNboWzoAlzp@mz`@|}_@fda@jakEitAn{fB_a]lexClshBtmqAdmY_hLxiZd~XtaBndgC"
                 },
                 "warnings": [ ],
-                "waypoint_order": [ 0, 1 ],
+                "waypoint_order": [ 1, 0 ],
                 "bounds": {
                   "southwest": {
                     "lat": 34.0523600,
@@ -263,7 +257,7 @@ Business Users:
 * Maximum depth of the time dimension is 672 (every quarter of an hour for 1 week)
 * 1 request per 5 seconds.
 
-## Travel Time Matrix API Calls [/traveltimematrix/{format}{?origin,destination,departure_time,interval,steps,optimize}]
+## Travel Time Matrix API Calls [/traveltimematrix/{format}{?origin,destination,departure_time,interval,steps,optimize,key}]
 
 ### Get travel time for single route [GET]
 
@@ -307,11 +301,11 @@ This call gets the travel time for a single route. The travel time can be calcul
                   "timestamp": "2014-10-22T09:00:00Z",
                   "origin": { "lat": , "lng": , "address": }
                   "destination": { "lat": , "lng": , "address": }
-                  "travel time": 2490
+                  "traveltime": 2490
                 },
                 {
                   "timestamp": "2014-10-22T09:15:00Z",
-                  // ... same pair with different travel times
+                  // ... same pair with different travel time
                 },
                 // ... additional timestamps
               ]
@@ -319,7 +313,7 @@ This call gets the travel time for a single route. The travel time can be calcul
 
 ### Get travel time matrix [PUT]
 
-> This is a PUT since the origin-destination matrix can contain a lot of locations, quickly surpassing the 2kb URL limit of some browsers. URL `origin` and `destination` parameters are **ignored** for this call.
+> This is a PUT since the origin-destination matrix can contain a lot of locations, quickly surpassing the 2kb URL limit of some browsers. `origin` and `destination` parameters are **ignored** for this call.
 
 + Parameters
     + format (required, string, `json`) ... `format` may be either of the following values:    
@@ -334,7 +328,7 @@ This call gets the travel time for a single route. The travel time can be calcul
     + departure_time (optional, string, `2014-10-22T09:00:00Z`) ... Specifies the desired time of departure in UTC. Format is `YYYY-MM-DDTHH:mm:ssZ`. 
 
         * If `departure_time` is in the past, a historic travel time is returned. 
-        * If `departure_time` is omitted, the travel time based an the current traffic situation (_real time_) is returned.
+        * If `departure_time` is omitted, the travel time based an the current traffic situation (real time) is returned.
         * If `departure_time` is in the future, short term or long term predictions are used to calculate the travel time, depending on how far the `departure_time` is in the future. If this is less than 60 minutes, real time traffic evolutien is used, otherwise the calculation is based on averaged historical data.
 
     + interval (optional, integer, `15`) ... The interval in minutes between every time step. If `interval` is specified, `steps` should be specified as well, otherwise this parameter is ignored.
@@ -625,3 +619,8 @@ The `accessibility` endpoint enables you to request the reachable area for both 
                 }
               }
             }
+
+# Group Trip Viewer
+
+## Introduction 
+
