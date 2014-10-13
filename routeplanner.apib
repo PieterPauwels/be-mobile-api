@@ -38,10 +38,6 @@ The `routeplanner` endpoint is a service that calculates directions between loca
       
 Directions may specify origins, destinations and waypoints either as text strings or as latitude/longitude coordinates. The Routeplanner API can return multi-part directions using a series of waypoints.
       
-This service is generally designed for calculating directions for static (known in advance) addresses for placement of application content on a map; this service is **not** designed to respond in real time to user input, for example.
-      
-Route planning is a time and resource intensive task. Whenever possible, calculate known addresses ahead of time (using the service described here) and store your results in a temporary cache of your own design.
-      
 ### Travel Modes
 
 When you calculate directions, you may specify which transportation `mode` to use. By default, directions are calculated as `car` directions. The following travel modes are currently supported:
@@ -71,17 +67,15 @@ Directions may be calculated that adhere to certain restrictions. Restrictions a
 * `highways`
 * `ferries`
 
-It's possible to request a route that avoids any combination of tolls, highways and ferries by passing both restrictions to the avoid parameter. For example: `avoid=tolls|highways|ferries`.
-
-### Region Biasing
-
-You can also set the Routeplanner service to return results biased to a particular region by use of the `region` parameter. This parameter takes a ccTLD (country code top-level domain) argument specifying the region bias. Most ccTLD codes are identical to ISO 3166-1 codes, with some notable exceptions. For example, the United Kingdom's ccTLD is "uk" (.co.uk) while its ISO 3166-1 code is "gb" (technically for the entity of "The United Kingdom of Great Britain and Northern Ireland").
-
-Region codes can be concatenated using the pipe symbol (|).
+It's possible to request a route that avoids any combination of tolls, highways and ferries.
 
 ## Technical Description
 
 ### Usage Limits
+
+This service is generally designed for calculating directions for static (known in advance) addresses for placement of application content on a map; this service is **not** designed to respond in real time to user input, for example.
+
+Route planning is a time and resource intensive task. Whenever possible, calculate known addresses ahead of time (using the service described here) and store your results in a temporary cache of your own design.
 
 The Routeplanner API has the following limits in place:
 
@@ -98,6 +92,14 @@ Business Users:
 * 10 requests per second.
 
 Routeplanner API URLs are restricted to approximately 2000 characters, after URL Encoding. As some Routeplanner API URLs may involve many locations along a path, be aware of this limit when constructing your URLs.
+
+### Region Biasing
+
+You can also set the Routeplanner service to return results biased to a particular region by use of the `region` parameter. This parameter takes a ccTLD (country code top-level domain) argument specifying the region bias. Most ccTLD codes are identical to ISO 3166-1 codes, with some notable exceptions. For example, the United Kingdom's ccTLD is "uk" (.co.uk) while its ISO 3166-1 code is "gb" (technically for the entity of "The United Kingdom of Great Britain and Northern Ireland").
+
+An example is 'Amsterdam', a city in The Netherlands, but also in the USA (with no less than 11 Amsterdams), Canada and South-Africa. Region biasing will help select the correct Amsterdam.
+
+Region codes can be concatenated using the pipe symbol (|).
 
 ### Routeplanner API Calls [/routeplanner/{format}{?origin,destination,mode,waypoints,alternatives,avoid,region,departure_time,arrival_time,routing_cost,effective_cost,key}]
 #### Get directions [GET]
