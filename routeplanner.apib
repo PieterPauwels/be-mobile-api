@@ -1,38 +1,6 @@
-# Be-Mobile API
-Move smarter together with the Be-Mobile API.
-
-## Audience
-      
-This document is intended for website and mobile developers who want to compute direction data within maps provided by the Be-Mobile API. It provides an introduction to using the API and reference material on the available parameters.
-      
-## API Key
-      
-> **Note**: Business users must include `client` and `signature` parameters with their requests instead of a key.
-     
-All Be-Mobile API applications should use an API key. Including a key in your request:
-
-* Allows you to monitor your application's API usage in the APIs Console.
-* Enables per-key instead of per-IP-address quota limits.
-* Ensures that Be-Mobile can contact you about your application if necessary.
- 
-The Directions API uses an API key to identify your application. API keys are managed through the [Be-Mobile API console](https://developers.be-mobile-international.com/api/console). To create your key:
-
-1. Visit the API console at https://developers.be-mobile-international.com/api/console and log in with your Be-Mobile Account.
-2. Click the **Services** link from the left-hand menu in the APIs Console, then activate the **Directions API** service.
-3. Once the service has been activated, your API key is available from the **API Access** page, in the **Simple API Access** section. Directions API applications use the Key for server apps.
-
-To specify a key in your request, include it as the value of a key parameter.
-
-> **Note**: By default, a key can be used from any server. We strongly recommend that you restrict the use of your key by IP address to servers that you administer. You can specify which IP addresses are allowed to use your API key by clicking the **Edit allowed referers...** link in the API console. HTTPS is enforced for requests that include an API key.
-
-## XML versus JSON
-
-We recommend that you use json as the preferred output flag unless your service requires xml for some reason. Processing XML trees requires some care, so that you reference proper nodes and elements. JSON is lighter, faster and easier to read (both by people and machines).
-
-> The remainder of this documentation will use JSON syntax. In most cases, the output format does not matter for purposes of illustrating concepts or field names in the documentation. However, note that blank elements are indicated through empty arrays in JSON, but by the absence of any such element in XML.
-
 # Group Routeplanner
-## Functional description
+
+## Functional Description
       
 The `routeplanner` endpoint is a service that calculates directions between locations using an HTTP request. You can search for directions for several modes of transportation, include public transport, driving, walking or cycling. 
       

@@ -1,6 +1,8 @@
 format.apib
+introduction.apib
 routeplanner.apib
 travellingsalesman.apib
 traveltime.apib
+traveltimematrix.apib
 accessibility.apib
 tripviewer.apib
