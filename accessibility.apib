@@ -2,7 +2,7 @@
 
 ## Functional Description 
 
-Accessibility gives you area that can be reached within a certain time from a location at a certain moment. Alternatively, it gives you the area from which a certain location can be reached within a certain time.
+Accessibility gives you a visual representation of the area that can be reached within a certain time from a location at a certain moment. Alternatively, it gives you the area from which a certain location can be reached within a certain time.
 
 The size of the reachable area can fluctuate heavily depending on traffic congestion.
 
@@ -22,7 +22,7 @@ The `accessibility` endpoint enables you to request the reachable area for both 
 
 ## Technical Description
 
-### Accessibility API Calls [/accessibility/{format}{?location,direction,mode,typeday,date,time,time_underway,visualisation,key}]
+### Accessibility API Calls [/accessibility/{format}{?location,direction,mode,typeday,date,time,time_underway,visualize,key}]
 
 #### Get area [GET]
 
@@ -34,10 +34,10 @@ The `accessibility` endpoint enables you to request the reachable area for both 
         
     + location (optional, string, `Ghent, Belgium or 51.055|3.715`) ... The address or textual latitude/longitude value that is the origin or destination (depending on the `direction`) of the accesible area. If you pass an address as a string, the Accessibility service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values. If **no location** is given, calculations will be done for all saved locations.
 
-    + direction (optional, string, `from`) ... `direction` indicates whether the given `location` is the origin of the destination of the reachable area. This makes a difference for the time it takes between the saved locations and the asked location. (See 'Storing locations'). If no direction is given, no calculations will be done for saved locations. In this case, `visualisation` will automatically be `true`. Options are
+    + direction (required, string, `from`) ... `direction` indicates whether the given `location` is the origin of the destination of the reachable area. This makes a difference for the time it takes between the saved locations and the asked location. (See 'Storing locations'). Options are
 
-        * `from` to indicate a start from the given `location`
-        * `to` to indicate starting from saved locations and trying to reach the given `location` within `time_underway`
+        * `from` to indicate a start from the given `location` and reaching a certain area within `time_underway`
+        * `to` to indicate trying to reach the given `location` within `time_underway`
 
     + mode (optional, string, `bicycle|public_transport`) ... Specifies the mode of transport to use when calculating directions. Values can be pipe-concatenated. Default is `car`. Valid values are:
         
@@ -56,13 +56,13 @@ The `accessibility` endpoint enables you to request the reachable area for both 
         * `saturday`
         * `sunday`
 
-    + date (optional, string, `2014-`) ... Historical day for which the calculation is done. Format is `YYYY-MM-DD`.
+    + date (optional, string, `2014-10-15`) ... Historical day for which the calculation is done. Format is `YYYY-MM-DD`.
 
     + time (optional, string, `23:00`) ... At what time the reachable area should be calculated. A time during rush hour will usually give very different results from the middle of the night. Format is `HH:mm`, with `HH` ranging from `00` to `23` and `mm` ranging from `00` to `59`. Times are in UTC.
 
     + time_underway (optional, integer, `3600`) ... The time in seconds that can be spend underway trying to reach an area or the saved locations. Default is 5400 (1,5 hours).
 
-    + visualisation (optional, string, `true`) ... If set to `true`, specifies that the Accessibility service returns a visual representation of the accessible areas. Calculation the visualisation is a time and resource intensive task. Default value is `false`, unless the `direction` parameter is set to `true`.
+    + visualize (optional, string, `true`) ... If set to `true`, specifies that the Accessibility service returns a visual representation of the accessible areas. Calculation of the visualisation is a time and resource intensive task. Default value is `false`, unless no `direction` parameter is given, in which case the only possible output is a visualization of the reachable area.
 
     + key (required, string, `BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI`) ... All Accessibility API applications should use an API key.
 
@@ -169,10 +169,11 @@ The `accessibility` endpoint enables you to request the reachable area for both 
 
     + Header
 
+        "x-bemobile-api-key": "BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI"
+
     + Body
     
             {
-              "key": "BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI",
               "locations": [
                 {
                   "coordinates": [102.0, 0.5],
