@@ -1,0 +1,214 @@
+FORMAT: 1A
+HOST: http://api.be-mobile.be/v1
+
+# Group Accessibility
+
+## Introduction 
+
+Accessibility gives you area that can be reached within a certain time from a location at a certain moment. Alternatively, it gives you the area from which a certain location can be reached within a certain time.
+
+The size of the reachable area can fluctuate heavily depending on traffic congestion.
+
+## Saving locations
+ 
+You can save a number of locations to be able to quickly see if they are reachable or not at a certain moment. These locations are associated with your API key. 
+
+> **Note**: An update of your locations will erase any previous locations you have saved.
+
+## Date and time
+
+The `accessibility` endpoint enables you to request the reachable area for both options on *typical* (averaged) days, for example, 'A typical monday' as well as for days in the past or real time.
+
+* For a **typical day**, fill in the `typeday` and `time` parameters. 
+* For a **moment in the past**, fill in `date` and `time` parameters.
+* For a **real time** calculation, leave out parameters `typeday`, `date` and `time`.
+
+## Accessibility API Calls [/accessibility/{format}{?location,direction,mode,typeday,date,time,time_underway,visualisation,key}]
+
+### Get area [GET]
+
++ Parameters
+    + format (required, string, `json`) ... `format` may be either of the following values:    
+    
+        * `json` (recommended) indicates output in JavaScript Object Notation (JSON)
+        * `xml` indicates output as XML
+        
+    + location (optional, string, `Ghent, Belgium or 51.055|3.715`) ... The address or textual latitude/longitude value that is the origin or destination (depending on the `direction`) of the accesible area. If you pass an address as a string, the Accessibility service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values. If **no location** is given, calculations will be done for all saved locations.
+
+    + direction (optional, string, `from`) ... `direction` indicates whether the given `location` is the origin of the destination of the reachable area. This makes a difference for the time it takes between the saved locations and the asked location. (See 'Storing locations'). If no direction is given, no calculations will be done for saved locations. In this case, `visualisation` will automatically be `true`. Options are
+
+        * `from` to indicate a start from the given `location`
+        * `to` to indicate starting from saved locations and trying to reach the given `location` within `time_underway`
+
+    + mode (optional, string, `bicycle|public_transport`) ... Specifies the mode of transport to use when calculating directions. Values can be pipe-concatenated. Default is `car`. Valid values are:
+        
+        * `foot`
+        * `bicycle`
+        * `public_transport`
+        * `car`
+        
+    + typeday (optional, string, `monday`) ... Typical day for which the calculation is done. Options are: 
+
+        * `monday`
+        * `tuesday`
+        * `wednesday`
+        * `thursday`
+        * `friday`
+        * `saturday`
+        * `sunday`
+
+    + date (optional, string, `2014-`) ... Historical day for which the calculation is done. Format is `YYYY-MM-DD`.
+
+    + time (optional, string, `23:00`) ... At what time the reachable area should be calculated. A time during rush hour will usually give very different results from the middle of the night. Format is `HH:mm`, with `HH` ranging from `00` to `23` and `mm` ranging from `00` to `59`. Times are in UTC.
+
+    + time_underway (optional, integer, `3600`) ... The time in seconds that can be spend underway trying to reach an area or the saved locations. Default is 5400 (1,5 hours).
+
+    + visualisation (optional, string, `true`) ... If set to `true`, specifies that the Accessibility service returns a visual representation of the accessible areas. Calculation the visualisation is a time and resource intensive task. Default value is `false`, unless the `direction` parameter is set to `true`.
+
+    + key (required, string, `BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI`) ... All Accessibility API applications should use an API key.
+
++ Response 200 (application/json)
+
+    + Header
+
+    + Body
+    
+            {
+              "status": "OK",
+              "locations": {
+                "type": "FeatureCollection",
+                  "features": [
+                    {
+                      "type": "Feature",
+                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+                      "properties": {"Organisation": "ACME", "description": "Warehouse North", "time": 4231 }
+                    },
+                    {
+                      "type": "Feature",
+                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+                      "properties": {"Organisation": "ACME", "description": "Warehouse East", "time": 805 }
+                    }
+                  ]
+                }
+              }
+              "visualisation": {
+                "type": "FeatureCollection",
+                "features": [
+                { 
+                  "type": "Feature",
+                   "geometry": {
+                     "type": "Polygon",
+                     "coordinates": [
+                       [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
+                         [100.0, 1.0], [100.0, 0.0] ]
+                       ]
+                   },
+                   "properties": {
+                     "time": 1800,
+                     "position": 1
+                     }
+                  },
+                { 
+                  "type": "Feature",
+                   "geometry": {
+                     "type": "Polygon",
+                     "coordinates": [
+                       [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
+                         [100.0, 1.0], [100.0, 0.0] ]
+                       ]
+                   },
+                   "properties": {
+                     "time": 3600,
+                     "position": 2
+                     }
+                  }
+                ]
+              }
+            }
+
+## Location API Calls [/accessibility/locations/{format}{?key}]
+
+### Get locations [GET]
+
++ Parameters
+    + format (required, string, `json`) ... `format` may be either of the following values:    
+    
+        * `json` (recommended) indicates output in JavaScript Object Notation (JSON)
+        * `xml` indicates output as XML
+        
+    + key (required, string, `BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI`) ... All Accessibility API applications should use an API key.
+
++ Response 200 (application/json)
+
+    + Header
+
+    + Body
+    
+            {
+              "status": "OK",
+              "locations": {
+                "type": "FeatureCollection",
+                  "features": [
+                    {
+                      "type": "Feature",
+                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+                      "properties": {"Organisation": "ACME", "description": "Warehouse North", "time": 4231 }
+                    },
+                    {
+                      "type": "Feature",
+                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+                      "properties": {"Organisation": "ACME", "description": "Warehouse East", "time": 805 }
+                    }
+                  ]
+                }
+              }
+            }
+
+### Save locations [PUT]
+
++ Request (application/json)
+
+    + Header
+
+    + Body
+    
+            {
+              "key": "BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI",
+              "locations": [
+                {
+                  "coordinates": [102.0, 0.5],
+                  "properties": {"Organisation": "ACME", "description": "Warehouse North" }
+                },
+                {
+                  "coordinates": [102.0, 0.5],
+                  "properties": {"Organisation": "ACME", "description": "Warehouse East" }
+                }
+              ]
+            }
+
++ Response 201 (application/json)
+
+    + Header
+
+    + Body
+    
+            {
+              "status": "OK",
+              "locations": {
+                "type": "FeatureCollection",
+                  "features": [
+                    {
+                      "type": "Feature",
+                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+                      "properties": {"Organisation": "ACME", "description": "Warehouse North" }
+                    },
+                    {
+                      "type": "Feature",
+                      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
+                      "properties": {"Organisation": "ACME", "description": "Warehouse East" }
+                    }
+                  ]
+                }
+              }
+            }
+

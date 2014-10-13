@@ -1,0 +1,190 @@
+FORMAT: 1A
+HOST: http://api.be-mobile.be/v1
+
+# Group Travel Time Matrix
+
+## Introduction 
+
+A travel time is the needed time it takes to travel from origin to destination. A travel time can either be:
+
+* **historic**: for a specific day and timestamp.
+* **real time**: based on the current traffic situation.
+* **short term prediction**: based on the evolution of the current traffic situation, a prediction can be made for up to 60 minutes.
+* **long term prediction**: based on historical averages, a prediction can be made for upcoming days, weeks and months.
+
+A travel time matrix is then the times it will take to get from a set of origins to a set of destinations. Example: A set of broken down cars and a set of dispatching vehicles, or a set of people and a set of taxis. This matrix can even be extended in time, for example to give an average travel time, every quarter of an hour, every day of the week, between a set of warehouses and a set of stores, making the matrix three-dimensional. 
+
+## Optimal Travel Times
+
+A two-dimensional matrix can again be squashed to keep only the optimal travel times. In case the number of origins and destinations is different, some of the origins or destinations will be left out. For example: only the closest dispatching vehicles will be sent to the broken down cars, or only the people closest to taxis will actually get a taxi.
+
+## Usage Limits
+
+Calculating a travel time matrix for sets that are bigger that 10x10 is a very time and resource intensive task, even more so if the matrix is extended in time. Therefore, the Travel Time Matrix API has the following limits in place:
+
+Users of the free API:
+
+* 1,000 requests per 24 hour period.
+* Up to 30 origins and 30 destinations allowed in each request.
+* Maximum depth of the time dimension is 48 (every half hour for 1 day)
+* 1 request per 30 seconds.
+
+Business Users:
+
+* 10,000 requests per 24 hour period.
+* Up to 300 origins and 300 destinations allowed in each request.
+* Maximum depth of the time dimension is 672 (every quarter of an hour for 1 week)
+* 1 request per 5 seconds.
+
+## Travel Time Matrix API Calls [/traveltimematrix/{format}{?origin,destination,departure_time,interval,steps,optimize,key}]
+
+### Get travel time for single route [GET]
+
+This call gets the travel time for a single route. The travel time can be calculated for a number of steps after the original `departure_time` to get an overview of the impact of different departure times on the travel time.
+
++ Parameters
+    + format (required, string, `json`) ... `format` may be either of the following values:    
+    
+        * `json` (recommended) indicates output in JavaScript Object Notation (JSON)
+        * `xml` indicates output as XML
+        
+    + origin (required, string, `Ghent, Belgium or 51.055|3.715`) ... The address or textual latitude/longitude value from which you wish to calculate directions. If you pass an address as a string, the Routeplanner service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values.
+
+    + destination (required, string, `Brussels, Belgium or 50.85|4.35`) ... The address or textual latitude/longitude value from which you wish to calculate directions. If you pass an address as a string, the Routeplanner service will geocode the string and convert it to a latitude/longitude coordinate to calculate directions. If you pass coordinates, ensure that no space exists between the latitude and longitude values.
+
+    + departure_time (optional, string, `2014-10-22T09:00:00Z`) ... Specifies the desired time of departure in UTC. Format is `YYYY-MM-DDTHH:mm:ssZ`. 
+
+        * If `departure_time` is in the past, a historic travel time is returned. 
+        * If `departure_time` is omitted, the travel time based an the current traffic situation (_real time_) is returned.
+        * If `departure_time` is in the future, short term or long term predictions are used to calculate the travel time, depending on how far the `departure_time` is in the future. If this is less than 60 minutes, real time traffic evolutien is used, otherwise the calculation is based on averaged historical data.
+
+    + interval (optional, integer, `15`) ... The interval in minutes between every time step. If `interval` is specified, `steps` should be specified as well, otherwise this parameter is ignored.
+    
+    + steps (optional, integer, `100`) ... The number of steps in the time dimension. If `steps` is specified, `interval` should be specified as well, otherwise this parameter is ignored.
+
+    + optimize (optional, string, `true`) ... This parameter is ignored when getting travel time for single route. It is only used when getting a travel time _matrix_. (See Get travel time matrix.)
+
+    + key (required, string, `BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI`) ... All Be-Mobile API applications should use an API key.
+
++ Response 200 (application/json)
+
+    + Header
+
+    + Body
+    
+            {
+              "status": "OK",
+              "type": "long term prediction",
+              "matrix": [
+                {
+                  "timestamp": "2014-10-22T09:00:00Z",
+                  "origin": { "lat": , "lng": , "address": }
+                  "destination": { "lat": , "lng": , "address": }
+                  "traveltime": 2490
+                },
+                {
+                  "timestamp": "2014-10-22T09:15:00Z",
+                  // ... same pair with different travel time
+                },
+                // ... additional timestamps
+              ]
+            }
+
+### Get travel time matrix [PUT]
+
+> This is a PUT since the origin-destination matrix can contain a lot of locations, quickly surpassing the 2kb URL limit of some browsers. `origin` and `destination` parameters are **ignored** for this call.
+
++ Parameters
+    + format (required, string, `json`) ... `format` may be either of the following values:    
+    
+        * `json` (recommended) indicates output in JavaScript Object Notation (JSON)
+        * `xml` indicates output as XML
+
+    + origin (optional, string, `Ghent, Belgium or 51.055|3.715`) ... This parameter is ignored when getting a travel time matrix, as origins are in the body of this request. It is only used when getting a travel time for a single route. (See Get travel time for single route.)
+
+    + destination (required, string, `Brussels, Belgium or 50.85|4.35`) ... This parameter is ignored when getting a travel time matrix, as destinations are in the body of this request. It is only used when getting a travel time for a single route. (See Get travel time for single route.)
+
+    + departure_time (optional, string, `2014-10-22T09:00:00Z`) ... Specifies the desired time of departure in UTC. Format is `YYYY-MM-DDTHH:mm:ssZ`. 
+
+        * If `departure_time` is in the past, a historic travel time is returned. 
+        * If `departure_time` is omitted, the travel time based an the current traffic situation (real time) is returned.
+        * If `departure_time` is in the future, short term or long term predictions are used to calculate the travel time, depending on how far the `departure_time` is in the future. If this is less than 60 minutes, real time traffic evolutien is used, otherwise the calculation is based on averaged historical data.
+
+    + interval (optional, integer, `15`) ... The interval in minutes between every time step. If `interval` is specified, `steps` should be specified as well, otherwise this parameter is ignored.
+    
+    + steps (optional, integer, `100`) ... The number of steps in the time dimension. If `steps` is specified, `interval` should be specified as well, otherwise this parameter is ignored.
+
+    + optimize (optional, string, `true`) ... When set to `true`, the travel time matrix will contain only the optimal travel times. If the number of origins and destinations is different, some of the origins or destinations will be left out.
+
+    + key (required, string, `BeMoSyB-A8Y82Lsncu9iUQtR-LUooaitdsexsknI`) ... All Be-Mobile API applications should use an API key.
+        
++ Request (application/json)
+
+    + Header
+
+    + Body
+    
+            {
+              "origins": [
+                {
+                  "coordinates": [102.0, 0.5],
+                  "properties": {"id": 1, "Organisation": "ACME", "description": "Warehouse North" }
+                },
+                {
+                  "coordinates": [102.0, 0.5],
+                  "properties": {"id": 2, "Organisation": "ACME", "description": "Warehouse East" }
+                }
+              ],
+              "destinations": [
+                {
+                  "coordinates": [102.0, 0.5],
+                  "properties": {"id": 1, "Organisation": "ACME", "description": "Shop Center City" }
+                },
+                {
+                  "coordinates": [102.0, 0.5],
+                  "properties": {"id": 2, "Organisation": "ACME", "description": "Shop Countryside" }
+                },
+                {
+                  "coordinates": [102.0, 0.5],
+                  "properties": {"id": 3, "Organisation": "ACME", "description": "Shop North" }
+                },
+                {
+                  "coordinates": [102.0, 0.5],
+                  "properties": {"id": 4, "Organisation": "ACME", "description": "Shop South" }
+                },
+              ],
+            }
+
++ Response 200 (application/json)
+
+    + Header
+
+    + Body
+    
+            {
+              "status": "OK",
+              "type": "long term prediction",
+              "matrix": [
+                {
+                  "timestamp": "2014-10-22T09:00:00Z",
+                  "pairs": [
+                    {
+                      "properties": {"id": 1, "Organisation": "ACME", "description": "Warehouse North" }
+                      "traveltimes": [
+                        {"id": 1, "Organisation": "ACME", "description": "Shop Center City", "time": "15810" },
+                        {"id": 2, "Organisation": "ACME", "description": "Shop Countryside", "time": "22111" },
+                        {"id": 3, "Organisation": "ACME", "description": "Shop North", "time": "8624" },
+                        {"id": 4, "Organisation": "ACME", "description": "Shop South", "time": "18624" }
+                      ]
+                    },
+                },
+                {
+                  "timestamp": "2014-10-22T09:15:00Z",
+                  "pairs": [
+                  // ... same pairs with different travel times
+                  ]
+                },
+                // ... additional timestamps, each with origin destination pairs
+              ]
+            }
+
