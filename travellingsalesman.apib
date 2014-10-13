@@ -1,7 +1,5 @@
 # Group Travelling Salesman
 
-## Travelling Salesman
-
 By default, the Routeplanner service calculates a route through the provided waypoints in their given order. Optionally, you may pass `optimize:true` as the first argument within the waypoints parameter to allow the Routeplanner service to optimize the provided route by rearranging the waypoints in a more efficient order. This optimization is an application of the [Travelling Salesman Problem](http://en.wikipedia.org/wiki/Travelling_salesman_problem).
 
 If you instruct the Routeplanner service to optimize the order of its waypoints, their order will be returned in the `waypoint_order` field within the routes object. The `waypoint_order` field returns values which are zero-based.
